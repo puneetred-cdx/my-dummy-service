@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complex Template</title>
+</head>
+<body>
+    <h1>Hello, <%= user.name %>!</h1>
+    <p>Your ID is: <%= user.id %></p>
+
+    <% if showSecret %>
+        <p>This is a secret message. Click the link:</p>
+        <a href="<%- secretLink %>">Secret Action</a>
+    <% end %>
+
+    <div id="data-container"></div>
+
+    <button id="fetch-data">Fetch Data</button>
+
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let searchParams = new URLSearchParams(window.location.search);
+
+            if (searchParams.has('token')) {
+                const token = searchParams.get('token');
+                $('#data-container').text("Token found: " + token);
+            }
+
+            $('#fetch-data').on("click", function () {
+                $.ajax({
+                    type: 'GET',
+                    url: "/api/items",
+                    headers: {
+                        'Authorization': "Bearer " + (searchParams.get('token') || 'dummy-token')
+                    },
+                    success: function (result) {
+                        $('#data-container').text(JSON.stringify(result, null, 2));
+                    },
+                    error: function (err) {
+                        console.log("Error fetching data", err);
+                        $('#data-container').text("Error fetching data.");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
